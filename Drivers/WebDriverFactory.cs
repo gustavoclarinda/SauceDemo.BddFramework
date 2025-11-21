@@ -1,5 +1,6 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using System;
 
 namespace SauceDemo.BddFramework.Drivers
 {
@@ -9,17 +10,31 @@ namespace SauceDemo.BddFramework.Drivers
         {
             var options = new ChromeOptions();
 
-            options.AddArgument("--start-maximized");
+            // Detect if running in CI (GitHub Actions sets CI=true)
+            var isCi = string.Equals(
+                Environment.GetEnvironmentVariable("CI"),
+                "true",
+                StringComparison.OrdinalIgnoreCase);
+
+            if (isCi)
+            {
+                // Headless mode for CI
+                options.AddArgument("--headless=new");
+                options.AddArgument("--disable-gpu");
+                options.AddArgument("--no-sandbox");
+            }
+            else
+            {
+                // Local dev: open normal window
+                options.AddArgument("--start-maximized");
+            }
 
             // Use a clean session (no saved passwords / Google account)
             options.AddArgument("--incognito");
 
-            // Disable Chrome password manager & credential service
+            // Disable Chrome password manager
             options.AddUserProfilePreference("credentials_enable_service", false);
             options.AddUserProfilePreference("profile.password_manager_enabled", false);
-
-            // In CI you can also add headless:
-            // options.AddArgument("--headless=new");
 
             return new ChromeDriver(options);
         }

@@ -17,5 +17,9 @@
 		<PackageReference Include="Selenium.Support" Version="4.38.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Include=".github\workflows\ci-tests.yml" />
+	</ItemGroup>
+
 </Project>
 
