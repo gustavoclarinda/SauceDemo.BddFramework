@@ -5,7 +5,6 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-  workflow_dispatch:
 
 jobs:
   tests:
@@ -24,35 +23,43 @@ jobs:
         run: dotnet restore
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build SauceDemo.BddFramework.csproj --configuration Release --no-restore
 
-      - name: Run UI tests (SauceDemo.BddFramework)
-        run: dotnet test SauceDemo.BddFramework.csproj --configuration Release
+      - name: Run BDD Tests (UI + API)
+        run: dotnet test SauceDemo.BddFramework.csproj --configuration Release --logger "trx;LogFileName=TestResults.trx"
 
-      - name: Run API tests (SauceDemo.ApiTests)
-        run: dotnet test SauceDemo.ApiTests.csproj --configuration Release
-      
-      - name: Collect Allure results
-        run: |
-          mkdir allure-results
-          if (Test-Path "SauceDemo.BddFramework/bin/Release/net8.0/allure-results") {
-              Copy-Item "SauceDemo.BddFramework/bin/Release/net8.0/allure-results/*" allure-results -Recurse -Force
-          }
-          if (Test-Path "SauceDemo.ApiTests/bin/Release/net8.0/allure-results") {
-              Copy-Item "SauceDemo.ApiTests/bin/Release/net8.0/allure-results/*" allure-results -Recurse -Force
-          }
+      # Gera relatório HTML do SpecFlow (LivingDoc)
+      - name: Install LivingDoc CLI
+        run: dotnet tool install --global SpecFlow.Plus.LivingDoc.CLI
 
-      - name: Generate Allure Report
+      - name: Generate LivingDoc HTML report
         if: always()
-        uses: simple-elf/allure-report-action@v1.7
-        with:
-          allure_results: allure-results
-          allure_report: allure-report
-          keep_reports: 10
+        shell: pwsh
+        run: |
+          $dll = Resolve-Path ".\bin\Release\net8.0\SauceDemo.BddFramework.dll"
+          $json = Get-ChildItem -Recurse ".\TestResults" -Filter *.json | Select-Object -First 1
 
-      - name: Upload Allure report
+          if (-not $json) {
+            Write-Error "SpecFlow JSON test execution file not found in TestResults."
+          } else {
+            Write-Host "Using test assembly: $dll"
+            Write-Host "Using SpecFlow JSON: $($json.FullName)"
+
+            livingdoc test-assembly $dll `
+              -t $json.FullName `
+              -o ".\LivingDoc"
+          }
+
+      - name: Publish Test Results (TRX)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report
-          path: allure-report
+          name: test-results-trx
+          path: '**/*.trx'
+
+      - name: Publish LivingDoc HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: livingdoc-report
+          path: LivingDoc

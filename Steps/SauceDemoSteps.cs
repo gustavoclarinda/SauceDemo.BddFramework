@@ -71,8 +71,6 @@ namespace SauceDemo.BddFramework.Steps
         }
 
 
-
-
         // -------- Checkout flow --------
 
         [Given(@"I am logged in on SauceDemo as ""(.*)"" with password ""(.*)""")]

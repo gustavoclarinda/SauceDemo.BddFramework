@@ -19,7 +19,7 @@ namespace SauceDemo.BddFramework.Api.Clients
                 BaseAddress = new Uri("https://restful-booker.herokuapp.com")
             };
 
-            // Headers padrão
+            // Headers defaults
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
@@ -27,7 +27,7 @@ namespace SauceDemo.BddFramework.Api.Clients
 
         public async Task<HttpResponseMessage> PingAsync()
         {
-            // /ping retorna 201 se estiver ok
+            // /ping retorn 201 if OK
             return await _httpClient.GetAsync("/ping");
         }
 
