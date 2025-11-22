@@ -23,14 +23,48 @@ jobs:
         run: dotnet restore
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build SauceDemo.BddFramework.csproj --configuration Release --no-restore
 
-      - name: Run BDD Tests
-        run: dotnet test SauceDemo.BddFramework.csproj --configuration Release --logger "trx;LogFileName=TestResults.trx"
+      - name: Run BDD Tests (UI + API)
+        run: dotnet test SauceDemo.BddFramework.csproj --configuration Release --logger "trx;LogFileName=TestResults_ci.trx"
+
+      - name: Install LivingDoc CLI
+        run: dotnet tool install --global SpecFlow.Plus.LivingDoc.CLI
+
+      - name: Add .NET Tools to PATH
+        shell: pwsh
+        run: echo "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
+
+      - name: Generate LivingDoc HTML report
+        if: always()
+        shell: pwsh
+        run: |
+          $dll = Resolve-Path "./bin/Release/net8.0/SauceDemo.BddFramework.dll"
+
+          $json = Get-ChildItem -Recurse "./TestResults" -Filter *.json | Select-Object -First 1
+
+          if (-not $json) {
+            Write-Host "SpecFlow JSON test execution file not found in ./TestResults. Skipping LivingDoc generation."
+          }
+          else {
+            Write-Host "Using test assembly: $dll"
+            Write-Host "Using SpecFlow JSON: $($json.FullName)"
+
+            livingdoc test-assembly $dll `
+              -t $json.FullName `
+              -o "./LivingDoc"
+          }
 
       - name: Publish Test Results (TRX)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: test-results-trx
           path: '**/*.trx'
+
+      - name: Publish LivingDoc HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: livingdoc-report
+          path: LivingDoc

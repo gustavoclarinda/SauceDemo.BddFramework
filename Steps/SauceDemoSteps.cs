@@ -26,7 +26,7 @@ namespace SauceDemo.BddFramework.Steps
             _scenarioContext = scenarioContext;
         }
 
-        // -------- Scenario 1: Login --------
+        // -------- Login --------
 
         [Given(@"I am on the SauceDemo login page")]
         public void GivenIAmOnTheSauceDemoLoginPage()
@@ -71,9 +71,7 @@ namespace SauceDemo.BddFramework.Steps
         }
 
 
-
-
-        // -------- Scenario 2: Checkout flow --------
+        // -------- Checkout flow --------
 
         [Given(@"I am logged in on SauceDemo as ""(.*)"" with password ""(.*)""")]
         public void GivenIAmLoggedInOnSauceDemoAsWithPassword(string username, string password)
@@ -143,7 +141,7 @@ namespace SauceDemo.BddFramework.Steps
             Assert.That(CheckoutCompletePage.GetCompleteText(), Does.Contain(expectedText));
         }
 
-        // -------- Scenario 3: Product Page --------
+        // -------- Product Page --------
 
         [When(@"I click on the ""(.*)"" product")]
         public void WhenIClickOnTheProduct(string productName)

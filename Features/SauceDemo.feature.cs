@@ -79,10 +79,12 @@ namespace SauceDemo.BddFramework.Features
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("Login and validate main inventory page elements")]
         [NUnit.Framework.CategoryAttribute("Login")]
+        [NUnit.Framework.CategoryAttribute("ui")]
         public void LoginAndValidateMainInventoryPageElements()
         {
             string[] tagsOfScenario = new string[] {
-                    "Login"};
+                    "Login",
+                    "ui"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Login and validate main inventory page elements", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 8
@@ -116,12 +118,14 @@ namespace SauceDemo.BddFramework.Features
         
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("Login with invalid credentials")]
+        [NUnit.Framework.CategoryAttribute("ui")]
         public void LoginWithInvalidCredentials()
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = new string[] {
+                    "ui"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Login with invalid credentials", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 15
+#line 16
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
@@ -131,13 +135,13 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-#line 16
+#line 17
     testRunner.Given("I am on the SauceDemo login page", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 17
+#line 18
     testRunner.When("I attempt to log in with username \"invalid_user\" and password \"wrong_password\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 18
+#line 19
  testRunner.Then("I should see the error message \"Epic sadface: Username and password do not match " +
                         "any user in this service\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
@@ -148,10 +152,12 @@ this.ScenarioInitialize(scenarioInfo);
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("Add first 3 items to cart and complete checkout")]
         [NUnit.Framework.CategoryAttribute("Checkout")]
+        [NUnit.Framework.CategoryAttribute("ui")]
         public void AddFirst3ItemsToCartAndCompleteCheckout()
         {
             string[] tagsOfScenario = new string[] {
-                    "Checkout"};
+                    "Checkout",
+                    "ui"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add first 3 items to cart and complete checkout", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 22
@@ -204,10 +210,12 @@ this.ScenarioInitialize(scenarioInfo);
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("Access the product details page of the Sauce Labs Fleece Jacket")]
         [NUnit.Framework.CategoryAttribute("ProductDetails")]
+        [NUnit.Framework.CategoryAttribute("ui")]
         public void AccessTheProductDetailsPageOfTheSauceLabsFleeceJacket()
         {
             string[] tagsOfScenario = new string[] {
-                    "ProductDetails"};
+                    "ProductDetails",
+                    "ui"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Access the product details page of the Sauce Labs Fleece Jacket", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 36
