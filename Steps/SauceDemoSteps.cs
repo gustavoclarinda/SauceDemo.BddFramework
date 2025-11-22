@@ -2,6 +2,7 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using SauceDemo.BddFramework.Pages;
 using TechTalk.SpecFlow;
+using Xunit;
 
 namespace SauceDemo.BddFramework.Steps
 {
@@ -18,6 +19,7 @@ namespace SauceDemo.BddFramework.Steps
         private CheckoutInformationPage CheckoutInformationPage => new CheckoutInformationPage(Driver);
         private CheckoutOverviewPage CheckoutOverviewPage => new CheckoutOverviewPage(Driver);
         private CheckoutCompletePage CheckoutCompletePage => new CheckoutCompletePage(Driver);
+        private ItemPage ItemPage => new ItemPage(Driver);
 
         public SauceDemoSteps(ScenarioContext scenarioContext)
         {
@@ -32,8 +34,8 @@ namespace SauceDemo.BddFramework.Steps
             LoginPage.Navigate();
         }
 
-        [When(@"I login with username ""(.*)"" and password ""(.*)""")]
-        public void WhenILoginWithUsernameAndPassword(string username, string password)
+        [When(@"I attempt to log in with username ""(.*)"" and password ""(.*)""")]
+        public void WhenIAttemptToLogInWithUsernameAndPassword(string username, string password)
         {
             LoginPage.Login(username, password);
         }
@@ -61,6 +63,15 @@ namespace SauceDemo.BddFramework.Steps
         {
             Assert.That(InventoryPage.GetProductCount(), Is.GreaterThan(0));
         }
+
+        [Then(@"I should see the error message ""(.*)""")]
+        public void ThenIShouldSeeTheErrorMessage(string expectedMessage)
+        {
+            Assert.That(LoginPage.GetErrorMessage(), Is.EqualTo(expectedMessage));
+        }
+
+
+
 
         // -------- Scenario 2: Checkout flow --------
 
@@ -131,5 +142,35 @@ namespace SauceDemo.BddFramework.Steps
         {
             Assert.That(CheckoutCompletePage.GetCompleteText(), Does.Contain(expectedText));
         }
+
+        // -------- Scenario 3: Product Page --------
+
+        [When(@"I click on the ""(.*)"" product")]
+        public void WhenIClickOnTheProduct(string productName)
+        {
+            ItemPage.OpenFleecejacket();
+            Assert.That(ItemPage.GetItemTitle(), Is.EqualTo(productName));
+        }
+
+
+        [Then("I should see the product details page")]
+        public void ThenIShouldSeeTheProductDetailsPage()
+        {
+            Assert.That(ItemPage.IsProductDescriptionVisible());
+            Assert.That(ItemPage.IsProductPriceVisible());
+        }
+
+        [Then("I add the product in the card")]
+        public void ThenIAddTheProductInTheCard()
+        {
+            ItemPage.AddProductToCart();
+        }
+
+        [Then(@"I should see 1 item in the cart")]
+        public void ThenIShouldSeeItemInTheCart()
+        {
+            InventoryPage.AddFirstNProductsToCart(1);
+        }
+
     }
 }

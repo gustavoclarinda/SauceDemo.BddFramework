@@ -6,12 +6,17 @@ Feature: SauceDemo basic flow
 
   @Login
   Scenario: Login and validate main inventory page elements
-    Given I am on the SauceDemo login page
-    When I login with username "standard_user" and password "secret_sauce"
+    Given I am logged in on SauceDemo as "standard_user" with password "secret_sauce"
     Then I should see the inventory page
     And the inventory title should be "Products"
     And the shopping cart icon should be visible
     And at least one product should be displayed
+
+Scenario: Login with invalid credentials
+    Given I am on the SauceDemo login page
+    When I attempt to log in with username "invalid_user" and password "wrong_password"
+	Then I should see the error message "Epic sadface: Username and password do not match any user in this service"
+
 
   @Checkout
   Scenario: Add first 3 items to cart and complete checkout
@@ -26,3 +31,12 @@ Feature: SauceDemo basic flow
     Then I should see the order confirmation page
     And the order confirmation title should be "Thank you for your order!"
     And the confirmation message should contain "Your order has been dispatched"
+
+@ProductDetails
+Scenario: Access the product details page of the Sauce Labs Fleece Jacket
+	Given I am logged in on SauceDemo as "standard_user" with password "secret_sauce"
+    When I click on the "Sauce Labs Fleece Jacket" product
+	Then I should see the product details page
+    And I add the product in the card
+    When I open the shopping cart
+	Then I should see 1 item in the cart

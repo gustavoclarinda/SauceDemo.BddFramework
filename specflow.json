@@ -15,3 +15,11 @@
   },
   "stepAssemblies": []
 }
+{
+  "specFlow": {
+    "stepDefinitions": {
+      "style": "CucumberExpressions"
+    }
+  }
+}
+
