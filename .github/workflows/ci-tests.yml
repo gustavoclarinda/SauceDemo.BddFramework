@@ -28,7 +28,6 @@ jobs:
       - name: Run BDD Tests (UI + API)
         run: dotnet test SauceDemo.BddFramework.csproj --configuration Release --logger "trx;LogFileName=TestResults.trx"
 
-      # Gera relatório HTML do SpecFlow (LivingDoc)
       - name: Install LivingDoc CLI
         run: dotnet tool install --global SpecFlow.Plus.LivingDoc.CLI
 
@@ -36,18 +35,19 @@ jobs:
         if: always()
         shell: pwsh
         run: |
-          $dll = Resolve-Path ".\bin\Release\net8.0\SauceDemo.BddFramework.dll"
-          $json = Get-ChildItem -Recurse ".\TestResults" -Filter *.json | Select-Object -First 1
+          $dll = Resolve-Path "./SauceDemo.BddFramework/bin/Release/net8.0/SauceDemo.BddFramework.dll"
+          $json = Get-ChildItem -Recurse "./SauceDemo.BddFramework/TestResults" -Filter *.json | Select-Object -First 1
 
           if (-not $json) {
-            Write-Error "SpecFlow JSON test execution file not found in TestResults."
-          } else {
+            Write-Host "SpecFlow JSON test execution file not found in SauceDemo.BddFramework/TestResults. Skipping LivingDoc generation."
+          }
+          else {
             Write-Host "Using test assembly: $dll"
             Write-Host "Using SpecFlow JSON: $($json.FullName)"
 
             livingdoc test-assembly $dll `
               -t $json.FullName `
-              -o ".\LivingDoc"
+              -o "./LivingDoc"
           }
 
       - name: Publish Test Results (TRX)
