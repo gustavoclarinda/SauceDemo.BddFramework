@@ -14,14 +14,14 @@ namespace SauceDemo.BddFramework.Hooks
             _scenarioContext = scenarioContext;
         }
 
-        [BeforeScenario]
+        [BeforeScenario("@ui")]
         public void BeforeScenario()
         {
             var driver = WebDriverFactory.Create();
             _scenarioContext["WebDriver"] = driver;
         }
 
-        [AfterScenario]
+        [AfterScenario("@ui")]
         public void AfterScenario()
         {
             // Get the WebDriver using the same key used in BeforeScenario

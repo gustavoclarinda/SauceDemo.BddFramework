@@ -5,6 +5,7 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   tests:
@@ -25,12 +26,33 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Run BDD Tests
-        run: dotnet test SauceDemo.BddFramework.csproj --configuration Release --logger "trx;LogFileName=TestResults.trx"
+      - name: Run UI tests (SauceDemo.BddFramework)
+        run: dotnet test SauceDemo.BddFramework.csproj --configuration Release
 
-      - name: Publish Test Results (TRX)
+      - name: Run API tests (SauceDemo.ApiTests)
+        run: dotnet test SauceDemo.ApiTests.csproj --configuration Release
+      
+      - name: Collect Allure results
+        run: |
+          mkdir allure-results
+          if (Test-Path "SauceDemo.BddFramework/bin/Release/net8.0/allure-results") {
+              Copy-Item "SauceDemo.BddFramework/bin/Release/net8.0/allure-results/*" allure-results -Recurse -Force
+          }
+          if (Test-Path "SauceDemo.ApiTests/bin/Release/net8.0/allure-results") {
+              Copy-Item "SauceDemo.ApiTests/bin/Release/net8.0/allure-results/*" allure-results -Recurse -Force
+          }
+
+      - name: Generate Allure Report
+        if: always()
+        uses: simple-elf/allure-report-action@v1.7
+        with:
+          allure_results: allure-results
+          allure_report: allure-report
+          keep_reports: 10
+
+      - name: Upload Allure report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: '**/*.trx'
+          name: allure-report
+          path: allure-report

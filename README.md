@@ -44,4 +44,9 @@ SauceDemo.BddFramework/
   specflow.json                # SpecFlow configuration
   SauceDemo.BddFramework.csproj
 
-  123
+Run:
+API Testing with Report:
+dotnet test --filter "TestCategory=api" --logger "trx;LogFileName=TestResults_api.trx"
+
+UI Testing with Report:
+dotnet test --filter "TestCategory=ui" --logger "trx;LogFileName=TestResults_ui.trx"

@@ -4,7 +4,7 @@ Feature: SauceDemo basic flow
   I want to automate critical flows on SauceDemo
   So that I can validate login, cart, and checkout behavior
 
-  @Login
+  @Login @ui
   Scenario: Login and validate main inventory page elements
     Given I am logged in on SauceDemo as "standard_user" with password "secret_sauce"
     Then I should see the inventory page
@@ -12,13 +12,13 @@ Feature: SauceDemo basic flow
     And the shopping cart icon should be visible
     And at least one product should be displayed
 
+@ui
 Scenario: Login with invalid credentials
     Given I am on the SauceDemo login page
     When I attempt to log in with username "invalid_user" and password "wrong_password"
 	Then I should see the error message "Epic sadface: Username and password do not match any user in this service"
 
-
-  @Checkout
+  @Checkout @ui
   Scenario: Add first 3 items to cart and complete checkout
     Given I am logged in on SauceDemo as "standard_user" with password "secret_sauce"
     When I add the first 3 products to the cart
@@ -32,7 +32,7 @@ Scenario: Login with invalid credentials
     And the order confirmation title should be "Thank you for your order!"
     And the confirmation message should contain "Your order has been dispatched"
 
-@ProductDetails
+@ProductDetails @ui
 Scenario: Access the product details page of the Sauce Labs Fleece Jacket
 	Given I am logged in on SauceDemo as "standard_user" with password "secret_sauce"
     When I click on the "Sauce Labs Fleece Jacket" product
