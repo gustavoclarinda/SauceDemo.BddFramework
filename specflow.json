@@ -13,13 +13,16 @@
       "nonparallel"
     ]
   },
-  "stepAssemblies": []
-}
-{
+  "stepAssemblies": [],
   "specFlow": {
     "stepDefinitions": {
       "style": "CucumberExpressions"
-    }
+    },
+    "plugins": [
+      {
+        "name": "SpecFlow.Plus.LivingDocPlugin",
+        "type": "GeneratorAndRuntime"
+      }
+    ]
   }
 }
-

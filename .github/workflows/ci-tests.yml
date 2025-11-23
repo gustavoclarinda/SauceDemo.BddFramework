@@ -96,3 +96,6 @@ jobs:
       - name: Deploy to GitHub Pages
         if: steps.check_livingdoc.outputs.exists == 'true'
         uses: actions/deploy-pages@v4
+        with:
+          name: livingdoc-report
+          path: LivingDoc
