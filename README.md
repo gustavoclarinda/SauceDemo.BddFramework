@@ -56,6 +56,49 @@ Additional notes:
 - Use `--verbosity normal` for more test output if troubleshooting.
 - Test result TRX files are produced in the test runner output folder and can be consumed by CI and reporting tools.
 
+### Gerar relatório HTML local (LivingDoc)
+
+1. Restaure a ferramenta de linha de comando do LivingDoc (manifesto local em `.config/dotnet-tools.json`):
+
+   ```bash
+   dotnet tool restore
+   ```
+
+2. Execute o script de geração para rodar os testes e converter o `TestExecution.json` em um relatório HTML:
+
+   ```bash
+   ./generate-livingdoc-report.sh
+   ```
+
+   - Por padrão os artefatos ficam em `TestReports/` (`TestReports/TestResults` para TRX e `TestReports/LivingDoc.html` para o relatório).
+   - Use `-c Release` para alterar a configuração de build ou `-o <pasta>` para escolher um diretório de saída diferente.
+   - O script executa `dotnet test` com o plugin `SpecFlow.Plus.LivingDocPlugin` já configurado no `csproj` e falhará se o `TestExecution.json` não for gerado.
+
+### Executar testes e gerar o LivingDoc pelo Visual Studio
+
+Se preferir rodar os testes no **Visual Studio** e gerar o mesmo relatório HTML do LivingDoc, siga estes passos:
+
+1. **Rodar os testes no Test Explorer**
+   - Abra a solução `SauceDemo.BddFramework.sln` no Visual Studio.
+   - Acesse **Test > Test Explorer** e clique em **Run All** (ou filtre por categoria nas configurações do Test Explorer).
+   - Certifique-se de que as configurações de Resultados de Teste do Visual Studio apontam para um diretório conhecido (por exemplo, `TestReports/TestResults`). Caso queira alterar, vá em **Tools > Options > Test > General** e ajuste o caminho de saída.
+
+2. **Localizar o `TestExecution.json` gerado pelo SpecFlow**
+   - Após a execução, o Visual Studio gravará arquivos TRX e o `TestExecution.json` gerado pelo plugin `SpecFlow.Plus.LivingDocPlugin` dentro do diretório de resultados (por padrão fica em `TestResults` sob a pasta da solução, a menos que você configure um caminho customizado).
+
+3. **Gerar o relatório LivingDoc a partir do resultado do Visual Studio**
+   - Em um terminal dentro da solução, restaure a ferramenta local e gere o HTML usando o arquivo `TestExecution.json` criado pelo Visual Studio:
+
+     ```bash
+     dotnet tool restore
+     livingdoc test-assembly SauceDemo.BddFramework/bin/Debug/net8.0/SauceDemo.BddFramework.dll \
+       -t "<CAMINHO_PARA>/TestExecution.json" \
+       -o TestReports/LivingDoc.html
+     ```
+
+   - Ajuste o caminho do DLL e do `TestExecution.json` se você usou outra configuração de build (por exemplo, `Release`).
+   - Como alternativa, você pode reutilizar o script `./generate-livingdoc-report.sh` apontando o parâmetro `-o` para o mesmo diretório de resultados configurado no Visual Studio, garantindo que o `TestExecution.json` seja encontrado automaticamente.
+
 ---
 
 ## Tech Stack
