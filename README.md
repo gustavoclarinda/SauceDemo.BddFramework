@@ -4,26 +4,30 @@ This repository contains a BDD automation framework for the [SauceDemo](https://
 
 The goal is to provide a professional, interview-ready example of a QA Automation framework that:
 
-- Uses **Gherkin BDD** for business-readable scenarios  
-- Implements **Page Object Model (POM)**  
-- Runs locally and in **GitHub Actions CI**  
-- Generates **test result reports** (TRX artifacts in the pipeline)  
+- Uses **Gherkin BDD** for business-readable scenarios
+- Implements **Page Object Model (POM)**
+- Runs locally and in **GitHub Actions CI**
+- Generates **test result reports** (TRX artifacts in the pipeline)
 
 ---
 
 ## Quickstart
-    
+
 A short, step-by-step guide to get the project running locally.
 
 1. Clone the repository:
 
+   ```bash
    git clone https://github.com/gustavoclarinda/SauceDemo.BddFramework.git
    cd SauceDemo.BddFramework
+   ```
 
 2. Restore dependencies and build:
 
+   ```bash
    dotnet restore
    dotnet build --configuration Release
+   ```
 
 3. Run tests (see "Running tests" section below for category filters and report options).
 
@@ -40,15 +44,19 @@ A short, step-by-step guide to get the project running locally.
 
 ## Running tests
 
-Keep the existing category-filter commands for reproducible test runs.
+Use the category-filter commands below for reproducible test runs.
 
-API Testing with Report:
+**API Testing with report:**
 
+```bash
 dotnet test --filter "TestCategory=api" --logger "trx;LogFileName=TestResults_api.trx"
+```
 
-UI Testing with Report:
+**UI Testing with report:**
 
+```bash
 dotnet test --filter "TestCategory=ui" --logger "trx;LogFileName=TestResults_ui.trx"
+```
 
 Additional notes:
 
@@ -56,48 +64,61 @@ Additional notes:
 - Use `--verbosity normal` for more test output if troubleshooting.
 - Test result TRX files are produced in the test runner output folder and can be consumed by CI and reporting tools.
 
-### Gerar relatório HTML local (LivingDoc)
+### Generate a local LivingDoc HTML report
 
-1. Restaure a ferramenta de linha de comando do LivingDoc (manifesto local em `.config/dotnet-tools.json`):
+1. Restore the LivingDoc CLI tool (local manifest in `.config/dotnet-tools.json`):
 
    ```bash
    dotnet tool restore
    ```
 
-2. Execute o script de geração para rodar os testes e converter o `TestExecution.json` em um relatório HTML:
+2. Run the generation script to execute tests and convert `TestExecution.json` into an HTML report:
 
    ```bash
    ./generate-livingdoc-report.sh
    ```
 
-   - Por padrão os artefatos ficam em `TestReports/` (`TestReports/TestResults` para TRX e `TestReports/LivingDoc.html` para o relatório).
-   - Use `-c Release` para alterar a configuração de build ou `-o <pasta>` para escolher um diretório de saída diferente.
-   - O script executa `dotnet test` com o plugin `SpecFlow.Plus.LivingDocPlugin` já configurado no `csproj` e falhará se o `TestExecution.json` não for gerado.
+   - By default, artifacts are written to `TestReports/` (`TestReports/TestResults` for TRX and `TestReports/LivingDoc.html` for the report).
+   - Use `-c Release` to change the build configuration or `-o <folder>` to choose a different output directory.
+   - The script runs `dotnet test` with the `SpecFlow.Plus.LivingDocPlugin` already configured in the `csproj` and will fail if `TestExecution.json` is not produced.
 
-### Executar testes e gerar o LivingDoc pelo Visual Studio
+### Run tests and generate LivingDoc via Visual Studio
 
-Se preferir rodar os testes no **Visual Studio** e gerar o mesmo relatório HTML do LivingDoc, siga estes passos:
+If you prefer to run tests in **Visual Studio** and generate the same LivingDoc HTML report, follow these steps:
 
-1. **Rodar os testes no Test Explorer**
-   - Abra a solução `SauceDemo.BddFramework.sln` no Visual Studio.
-   - Acesse **Test > Test Explorer** e clique em **Run All** (ou filtre por categoria nas configurações do Test Explorer).
-   - Certifique-se de que as configurações de Resultados de Teste do Visual Studio apontam para um diretório conhecido (por exemplo, `TestReports/TestResults`). Caso queira alterar, vá em **Tools > Options > Test > General** e ajuste o caminho de saída.
+1. **Run the tests in Test Explorer**
+   - Open the `SauceDemo.BddFramework.sln` solution in Visual Studio.
+   - Navigate to **Test > Test Explorer** and click **Run All** (or filter by category using Test Explorer settings).
+   - Ensure Visual Studio's Test Results settings point to a known directory (for example, `TestReports/TestResults`). To change it, go to **Tools > Options > Test > General** and adjust the output path.
 
-2. **Localizar o `TestExecution.json` gerado pelo SpecFlow**
-   - Após a execução, o Visual Studio gravará arquivos TRX e o `TestExecution.json` gerado pelo plugin `SpecFlow.Plus.LivingDocPlugin` dentro do diretório de resultados (por padrão fica em `TestResults` sob a pasta da solução, a menos que você configure um caminho customizado).
+2. **Locate the `TestExecution.json` generated by SpecFlow**
+   - After the run, Visual Studio will write TRX files and the `TestExecution.json` produced by the `SpecFlow.Plus.LivingDocPlugin` inside the results directory (by default under `TestResults` in the solution folder unless you configured a custom path).
 
-3. **Gerar o relatório LivingDoc a partir do resultado do Visual Studio**
-   - Em um terminal dentro da solução, restaure a ferramenta local e gere o HTML usando o arquivo `TestExecution.json` criado pelo Visual Studio:
+3. **Generate the LivingDoc report from the Visual Studio result**
+   - In a terminal inside the solution, restore the local tool and generate the HTML using the `TestExecution.json` created by Visual Studio:
 
      ```bash
      dotnet tool restore
      livingdoc test-assembly SauceDemo.BddFramework/bin/Debug/net8.0/SauceDemo.BddFramework.dll \
-       -t "<CAMINHO_PARA>/TestExecution.json" \
+       -t "<PATH_TO>/TestExecution.json" \
        -o TestReports/LivingDoc.html
      ```
 
-   - Ajuste o caminho do DLL e do `TestExecution.json` se você usou outra configuração de build (por exemplo, `Release`).
-   - Como alternativa, você pode reutilizar o script `./generate-livingdoc-report.sh` apontando o parâmetro `-o` para o mesmo diretório de resultados configurado no Visual Studio, garantindo que o `TestExecution.json` seja encontrado automaticamente.
+   - Adjust the DLL and `TestExecution.json` paths if you used a different build configuration (for example, `Release`).
+   - Alternatively, you can reuse the `./generate-livingdoc-report.sh` script, pointing the `-o` parameter to the same results directory configured in Visual Studio so it can automatically find `TestExecution.json`.
+
+### Generate an HTML report in GitHub Actions
+
+The `CI - SauceDemo BDD Automation` workflow already produces the LivingDoc report on every run for the `master` branch (push or pull request):
+
+1. Tests run in **Release** and produce TRX files and `TestExecution.json` in `TestReports/TestResults`.
+2. The LivingDoc local tool is restored (`dotnet tool restore`) and used to create `TestReports/LivingDoc/LivingDoc.html` from the built DLL and `TestExecution.json`.
+3. Artifacts are published in the workflow run:
+   - `test-results-trx`: TRX test result files.
+   - `livingdoc-report`: folder with `LivingDoc.html` and assets.
+4. When the artifacts exist, they are also uploaded to **GitHub Pages** (environment `github-pages`), allowing you to view the HTML via the `page_url` shown in the job logs.
+
+To download the report for a specific run, open the workflow run in GitHub, go to **Artifacts**, and download `livingdoc-report` (it contains the ready-to-open HTML).
 
 ---
 
@@ -113,6 +134,7 @@ Se preferir rodar os testes no **Visual Studio** e gerar o mesmo relatório HTML
 
 ## Project Structure
 
+```
 SauceDemo.BddFramework/
   Features/
     SauceDemo.feature          # BDD scenarios (Gherkin)
@@ -132,6 +154,7 @@ SauceDemo.BddFramework/
     WebDriverFactory.cs        # Centralized WebDriver configuration
   specflow.json                # SpecFlow configuration
   SauceDemo.BddFramework.csproj
+```
 
 ---
 
@@ -139,20 +162,10 @@ SauceDemo.BddFramework/
 
 - If ChromeDriver version mismatches, update the driver or Chrome to matching versions.
 - If tests hang, run with `--logger "trx;LogFileName=debug.trx" --verbosity d` and inspect the TRX.
-- Ensure environment variables used by tests (if any) are set before running.
+- Ensure any environment variables used by tests (if any) are set before running.
 
 ---
 
 ## What changed
 
-This addition reorganizes the README to include a Quickstart, Prerequisites, and Troubleshooting sections and preserves the original test commands and project structure references.
-
-This revised `README.md` maintains the original content while enhancing the document's usability and clarity by adding structured sections for quick start, prerequisites, and troubleshooting.
-
-## Run:
-
-UI Testing with Report:
-dotnet test --filter "TestCategory=ui" --logger "trx;LogFileName=TestResults_ui.trx"
-
-API Testing with Report:
-dotnet test --filter "TestCategory=api" --logger "trx;LogFileName=TestResults_api.trx"
+This version of the README restructures the document with Quickstart, Prerequisites, Running tests, LivingDoc reporting, and Troubleshooting sections to improve clarity while preserving the original test commands and project structure references.
