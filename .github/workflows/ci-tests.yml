@@ -11,9 +11,16 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   tests:
     runs-on: windows-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout
@@ -28,10 +35,10 @@ jobs:
         run: dotnet restore
 
       - name: Build
-        run: dotnet build SauceDemo.BddFramework.csproj --configuration Release --no-restore
+        run: dotnet build SauceDemo.BddFramework/SauceDemo.BddFramework.csproj --configuration Release --no-restore
 
       - name: Run BDD Tests (UI + API)
-        run: dotnet test SauceDemo.BddFramework.csproj --configuration Release --logger "trx;LogFileName=TestResults_ci.trx"
+        run: dotnet test SauceDemo.BddFramework/SauceDemo.BddFramework.csproj --configuration Release --logger "trx;LogFileName=TestResults_ci.trx"
 
       - name: Install LivingDoc CLI
         run: dotnet tool install --global SpecFlow.Plus.LivingDoc.CLI
@@ -44,19 +51,28 @@ jobs:
         if: always()
         shell: pwsh
         run: |
-          $dll = Resolve-Path "./bin/Release/net8.0/SauceDemo.BddFramework.dll"
+          $projectDir = Resolve-Path "./SauceDemo.BddFramework"
+          $dll = Resolve-Path "$projectDir/bin/Release/net8.0/SauceDemo.BddFramework.dll"
 
-          $json = Get-ChildItem -Recurse "./TestResults" -Filter *.json | Select-Object -First 1
+          $resultsDir = "$projectDir/TestResults"
+
+          if (-not (Test-Path $resultsDir)) {
+            Write-Host "TestResults folder not found at $resultsDir. Skipping LivingDoc generation."
+            exit 0
+          }
+
+          $json = Get-ChildItem -Recurse $resultsDir -Filter *.json | Select-Object -First 1
 
           if (-not $json) {
-            Write-Host "SpecFlow JSON test execution file not found in ./TestResults. Skipping LivingDoc generation."
+            Write-Host "SpecFlow JSON test execution file not found in $resultsDir. Skipping LivingDoc generation."
             exit 0
           }
           else {
             Write-Host "Using test assembly: $dll"
             Write-Host "Using SpecFlow JSON: $($json.FullName)"
 
-            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "./LivingDoc" || $null
+            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "./LivingDoc" | Out-Null
+
             livingdoc test-assembly $dll `
               -t $json.FullName `
               -o "./LivingDoc"
@@ -95,7 +111,5 @@ jobs:
 
       - name: Deploy to GitHub Pages
         if: steps.check_livingdoc.outputs.exists == 'true'
+        id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          name: livingdoc-report
-          path: LivingDoc
