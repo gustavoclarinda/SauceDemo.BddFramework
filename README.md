@@ -56,6 +56,24 @@ Additional notes:
 - Use `--verbosity normal` for more test output if troubleshooting.
 - Test result TRX files are produced in the test runner output folder and can be consumed by CI and reporting tools.
 
+### Gerar relatório HTML local (LivingDoc)
+
+1. Restaure a ferramenta de linha de comando do LivingDoc (manifesto local em `.config/dotnet-tools.json`):
+
+   ```bash
+   dotnet tool restore
+   ```
+
+2. Execute o script de geração para rodar os testes e converter o `TestExecution.json` em um relatório HTML:
+
+   ```bash
+   ./generate-livingdoc-report.sh
+   ```
+
+   - Por padrão os artefatos ficam em `TestReports/` (`TestReports/TestResults` para TRX e `TestReports/LivingDoc.html` para o relatório).
+   - Use `-c Release` para alterar a configuração de build ou `-o <pasta>` para escolher um diretório de saída diferente.
+   - O script executa `dotnet test` com o plugin `SpecFlow.Plus.LivingDocPlugin` já configurado no `csproj` e falhará se o `TestExecution.json` não for gerado.
+
 ---
 
 ## Tech Stack
