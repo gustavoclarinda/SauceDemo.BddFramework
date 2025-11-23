@@ -53,22 +53,31 @@ jobs:
         run: |
           $dll = Resolve-Path "./bin/Release/net8.0/SauceDemo.BddFramework.dll"
 
-          $resultsDir = Resolve-Path "./TestResults"
+          $resultsDir = Resolve-Path "./TestResults" -ErrorAction SilentlyContinue
 
-          $json = Get-ChildItem -Recurse $resultsDir -Filter *.json | Select-Object -First 1
-
-          if (-not $json) {
-            Write-Host "SpecFlow JSON test execution file not found. Skipping LivingDoc generation."
+          if (-not $resultsDir) {
+            Write-Host "TestResults directory not found. Skipping LivingDoc generation."
             exit 0
           }
 
+          # Procura JSON primeiro, depois TRX como fallback
+          $json = Get-ChildItem -Recurse $resultsDir -Filter *.json -ErrorAction SilentlyContinue | Select-Object -First 1
+          $trx  = Get-ChildItem -Recurse $resultsDir -Filter *.trx  -ErrorAction SilentlyContinue | Select-Object -First 1
+
+          if (-not $json -and -not $trx) {
+            Write-Host "No SpecFlow JSON or TRX test execution file found. Skipping LivingDoc generation."
+            exit 0
+          }
+
+          $resultFile = if ($json) { $json.FullName } else { $trx.FullName }
+
           Write-Host "Using DLL: $dll"
-          Write-Host "Using JSON: $($json.FullName)"
+          Write-Host "Using test results: $resultFile"
 
           Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "./LivingDoc" | Out-Null
 
           livingdoc test-assembly $dll `
-            -t $json.FullName `
+            -t $resultFile `
             -o "./LivingDoc"
 
       - name: Check LivingDoc exists
