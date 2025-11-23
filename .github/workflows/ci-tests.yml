@@ -38,7 +38,11 @@ jobs:
         run: dotnet build SauceDemo.BddFramework.csproj --configuration Release --no-restore
 
       - name: Run BDD Tests (UI + API)
-        run: dotnet test SauceDemo.BddFramework.csproj --configuration Release --logger "trx;LogFileName=TestResults_ci.trx"
+        run: |
+          dotnet test SauceDemo.BddFramework.csproj `
+            --configuration Release `
+            --logger "trx;LogFileName=TestResults/TestResults_ci.trx" `
+            --logger "SpecFlow+LivingDoc;LogFileName=TestResults/TestResults_ci.json"
 
       - name: Install LivingDoc CLI
         run: dotnet tool install --global SpecFlow.Plus.LivingDoc.CLI
@@ -52,7 +56,6 @@ jobs:
         shell: pwsh
         run: |
           $dll = Resolve-Path "./bin/Release/net8.0/SauceDemo.BddFramework.dll"
-
           $resultsDir = Resolve-Path "./TestResults" -ErrorAction SilentlyContinue
 
           if (-not $resultsDir) {
@@ -60,7 +63,7 @@ jobs:
             exit 0
           }
 
-          # Procura JSON primeiro, depois TRX como fallback
+          # Prefer SpecFlow JSON (produced by SpecFlow+LivingDoc logger), fallback to TRX
           $json = Get-ChildItem -Recurse $resultsDir -Filter *.json -ErrorAction SilentlyContinue | Select-Object -First 1
           $trx  = Get-ChildItem -Recurse $resultsDir -Filter *.trx  -ErrorAction SilentlyContinue | Select-Object -First 1
 
