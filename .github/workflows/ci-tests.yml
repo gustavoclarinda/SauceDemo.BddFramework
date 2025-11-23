@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   tests:
     runs-on: windows-latest
@@ -45,26 +50,49 @@ jobs:
 
           if (-not $json) {
             Write-Host "SpecFlow JSON test execution file not found in ./TestResults. Skipping LivingDoc generation."
+            exit 0
           }
           else {
             Write-Host "Using test assembly: $dll"
             Write-Host "Using SpecFlow JSON: $($json.FullName)"
 
+            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "./LivingDoc" || $null
             livingdoc test-assembly $dll `
               -t $json.FullName `
               -o "./LivingDoc"
           }
 
-      - name: Publish Test Results (TRX)
+      - name: Check LivingDoc exists
+        id: check_livingdoc
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path ./LivingDoc) {
+            echo "exists=true" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "exists=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Upload Test Results (TRX)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results-trx
           path: '**/*.trx'
 
-      - name: Publish LivingDoc HTML report
-        if: always()
+      - name: Publish LivingDoc HTML report (artifact)
+        if: steps.check_livingdoc.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: livingdoc-report
           path: LivingDoc
+
+      - name: Upload Pages Artifact (for GitHub Pages)
+        if: steps.check_livingdoc.outputs.exists == 'true'
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: LivingDoc
+
+      - name: Deploy to GitHub Pages
+        if: steps.check_livingdoc.outputs.exists == 'true'
+        uses: actions/deploy-pages@v1
