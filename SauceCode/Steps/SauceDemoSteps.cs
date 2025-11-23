@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using OpenQA.Selenium;
-using SauceDemo.BddFramework.Pages;
+using SauceDemo.BddFramework.SauceCode.Pages;
 using TechTalk.SpecFlow;
 using Xunit;
 

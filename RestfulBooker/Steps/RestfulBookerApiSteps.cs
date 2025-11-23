@@ -5,7 +5,7 @@ using SauceDemo.BddFramework.Api.Clients;
 using SauceDemo.BddFramework.Api.Models;
 using System.Net.Http;
 
-namespace SauceDemo.BddFramework.Steps
+namespace SauceDemo.BddFramework.RestfulBooke.Steps
 {
     [Binding]
     public class RestfulBookerApiSteps

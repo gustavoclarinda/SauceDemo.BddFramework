@@ -3,7 +3,7 @@ using OpenQA.Selenium.Support.UI;
 using System;
 using System.Linq;
 
-namespace SauceDemo.BddFramework.Pages
+namespace SauceDemo.BddFramework.SauceCode.Pages
 {
     public class ItemPage : BasePage
     {

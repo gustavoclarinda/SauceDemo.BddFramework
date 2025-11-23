@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace SauceDemo.BddFramework.Features
+namespace SauceDemo.BddFramework.RestfulBooker.Features
 {
     using TechTalk.SpecFlow;
     using System;
@@ -35,7 +35,7 @@ namespace SauceDemo.BddFramework.Features
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "Restful Booker API", "  API tests for the Restful Booker service", ProgrammingLanguage.CSharp, featureTags);
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "RestfulBooker/Features", "Restful Booker API", "  API tests for the Restful Booker service", ProgrammingLanguage.CSharp, featureTags);
             testRunner.OnFeatureStart(featureInfo);
         }
         

@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace SauceDemo.BddFramework.Features
+namespace SauceDemo.BddFramework.SauceCode.Features
 {
     using TechTalk.SpecFlow;
     using System;
@@ -37,7 +37,7 @@ namespace SauceDemo.BddFramework.Features
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "SauceDemo basic flow", "  As a QA Engineer\r\n  I want to automate critical flows on SauceDemo\r\n  So that I" +
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "SauceCode/Features", "SauceDemo basic flow", "  As a QA Engineer\r\n  I want to automate critical flows on SauceDemo\r\n  So that I" +
                     " can validate login, cart, and checkout behavior", ProgrammingLanguage.CSharp, featureTags);
             testRunner.OnFeatureStart(featureInfo);
         }

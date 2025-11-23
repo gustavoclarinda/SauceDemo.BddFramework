@@ -1,6 +1,6 @@
 using OpenQA.Selenium;
 
-namespace SauceDemo.BddFramework.Pages
+namespace SauceDemo.BddFramework.SauceCode.Pages
 {
     public class CheckoutOverviewPage : BasePage
     {
