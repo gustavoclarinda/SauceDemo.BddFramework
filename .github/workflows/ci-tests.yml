@@ -38,50 +38,45 @@ jobs:
         run: dotnet build SauceDemo.BddFramework.csproj --configuration Release --no-restore
 
       - name: Run BDD Tests (UI + API)
-        run: dotnet test SauceDemo.BddFramework.csproj --configuration Release --logger "trx;LogFileName=TestResults_ci.trx" --results-directory TestResults
+        run: dotnet test SauceDemo.BddFramework.csproj --configuration Release --logger "trx;LogFileName=TestResults_ci.trx" --results-directory TestReports/TestResults
 
-      - name: Install LivingDoc CLI
-        run: dotnet tool install --global SpecFlow.Plus.LivingDoc.CLI
-
-      - name: Add .NET Tools to PATH
-        shell: pwsh
-        run: echo "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
+      - name: Restore local LivingDoc CLI
+        run: dotnet tool restore
 
       - name: Generate LivingDoc HTML report
         if: always()
         shell: pwsh
         run: |
-          # DLL gerada pelo build
           $dll = Resolve-Path "./bin/Release/net8.0/SauceDemo.BddFramework.dll"
+          $resultsDir = Resolve-Path "./TestReports/TestResults"
 
-          if (-not (Test-Path "./TestResults")) {
+          if (-not (Test-Path $resultsDir)) {
             Write-Host "TestResults folder not found. Skipping LivingDoc generation."
             exit 0
           }
 
-          # Procura o primeiro JSON do SpecFlow dentro de TestResults
-          $json = Get-ChildItem -Recurse "./TestResults" -Filter *.json | Select-Object -First 1
+          $json = Get-ChildItem -Recurse $resultsDir -Filter TestExecution.json | Select-Object -First 1
 
           if (-not $json) {
-            Write-Host "SpecFlow JSON test execution file not found in ./TestResults. Skipping LivingDoc generation."
+            Write-Host "SpecFlow TestExecution.json not found in $resultsDir. Skipping LivingDoc generation."
             exit 0
           }
 
           Write-Host "Using DLL: $dll"
           Write-Host "Using SpecFlow JSON: $($json.FullName)"
 
-          Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "./LivingDoc" | Out-Null
+          Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "./TestReports/LivingDoc"
 
-          livingdoc test-assembly $dll `
+          dotnet tool run livingdoc test-assembly $dll `
             -t $json.FullName `
-            -o "./LivingDoc"
+            -o "./TestReports/LivingDoc"
 
       - name: Check LivingDoc exists
         id: check_livingdoc
         if: always()
         shell: pwsh
         run: |
-          if (Test-Path ./LivingDoc) {
+          if (Test-Path ./TestReports/LivingDoc) {
             echo "exists=true" >> $env:GITHUB_OUTPUT
           } else {
             echo "exists=false" >> $env:GITHUB_OUTPUT
@@ -92,20 +87,20 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-trx
-          path: '**/*.trx'
+          path: TestReports/**/*.trx
 
       - name: Publish LivingDoc HTML report (artifact)
         if: steps.check_livingdoc.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: livingdoc-report
-          path: LivingDoc
+          path: TestReports/LivingDoc
 
       - name: Upload Pages Artifact (for GitHub Pages)
         if: steps.check_livingdoc.outputs.exists == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
-          path: LivingDoc
+          path: TestReports/LivingDoc
 
       - name: Deploy to GitHub Pages
         if: steps.check_livingdoc.outputs.exists == 'true'
