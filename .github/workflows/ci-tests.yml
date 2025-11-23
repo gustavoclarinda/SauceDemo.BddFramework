@@ -35,13 +35,10 @@ jobs:
         run: dotnet restore
 
       - name: Build
-        run: dotnet build src/SauceDemo.BddFramework/SauceDemo.BddFramework.csproj --configuration Release --no-restore
+        run: dotnet build SauceDemo.BddFramework.csproj --configuration Release --no-restore
 
       - name: Run BDD Tests (UI + API)
-        run: |
-          dotnet test src/SauceDemo.BddFramework/SauceDemo.BddFramework.csproj `
-            --configuration Release `
-            --logger "trx;LogFileName=TestResults/TestResults_ci.trx"
+        run: dotnet test SauceDemo.BddFramework.csproj --configuration Release --logger "trx;LogFileName=TestResults_ci.trx" --results-directory TestResults
 
       - name: Install LivingDoc CLI
         run: dotnet tool install --global SpecFlow.Plus.LivingDoc.CLI
@@ -54,32 +51,29 @@ jobs:
         if: always()
         shell: pwsh
         run: |
+          # DLL gerada pelo build
           $dll = Resolve-Path "./bin/Release/net8.0/SauceDemo.BddFramework.dll"
-          $resultsDir = Resolve-Path "./TestResults" -ErrorAction SilentlyContinue
 
-          if (-not $resultsDir) {
-            Write-Host "TestResults directory not found. Skipping LivingDoc generation."
+          if (-not (Test-Path "./TestResults")) {
+            Write-Host "TestResults folder not found. Skipping LivingDoc generation."
             exit 0
           }
 
-          # Procura JSON primeiro, depois TRX como fallback
-          $json = Get-ChildItem -Recurse $resultsDir -Filter *.json -ErrorAction SilentlyContinue | Select-Object -First 1
-          $trx  = Get-ChildItem -Recurse $resultsDir -Filter *.trx  -ErrorAction SilentlyContinue | Select-Object -First 1
+          # Procura o primeiro JSON do SpecFlow dentro de TestResults
+          $json = Get-ChildItem -Recurse "./TestResults" -Filter *.json | Select-Object -First 1
 
-          if (-not $json -and -not $trx) {
-            Write-Host "No SpecFlow JSON or TRX test execution file found. Skipping LivingDoc generation."
+          if (-not $json) {
+            Write-Host "SpecFlow JSON test execution file not found in ./TestResults. Skipping LivingDoc generation."
             exit 0
           }
-
-          $resultFile = if ($json) { $json.FullName } else { $trx.FullName }
 
           Write-Host "Using DLL: $dll"
-          Write-Host "Using test results: $resultFile"
+          Write-Host "Using SpecFlow JSON: $($json.FullName)"
 
           Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "./LivingDoc" | Out-Null
 
           livingdoc test-assembly $dll `
-            -t $resultFile `
+            -t $json.FullName `
             -o "./LivingDoc"
 
       - name: Check LivingDoc exists
