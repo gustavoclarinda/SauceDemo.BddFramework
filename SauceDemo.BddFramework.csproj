@@ -27,7 +27,7 @@
   <ItemGroup>
     <None Include=".github\workflows\ci-tests.yml" />
     <None Include="allureConfig.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
