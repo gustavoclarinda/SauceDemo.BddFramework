@@ -20,6 +20,8 @@ jobs:
     runs-on: windows-latest
     env:
       ALLURE_CONFIG: ${{ github.workspace }}/allureConfig.json
+      # Disable the workload resolver to avoid SDK workload errors on hosted agents
+      MSBuildEnableWorkloadResolver: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
