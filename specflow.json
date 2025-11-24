@@ -20,7 +20,7 @@
     },
     "plugins": [
       {
-        "name": "SpecFlow.Plus.LivingDocPlugin",
+        "name": "Allure",
         "type": "GeneratorAndRuntime"
       }
     ]

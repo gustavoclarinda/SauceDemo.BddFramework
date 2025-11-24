@@ -18,6 +18,8 @@ concurrency:
 jobs:
   tests:
     runs-on: windows-latest
+    env:
+      ALLURE_CONFIG: ${{ github.workspace }}/allureConfig.json
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -31,6 +33,10 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Install Allure CLI
+        shell: pwsh
+        run: choco install allure.commandline -y
+
       - name: Restore
         run: dotnet restore
 
@@ -40,43 +46,30 @@ jobs:
       - name: Run BDD Tests (UI + API)
         run: dotnet test SauceDemo.BddFramework.csproj --configuration Release --logger "trx;LogFileName=TestResults_ci.trx" --results-directory TestReports/TestResults
 
-      - name: Restore local LivingDoc CLI
-        run: dotnet tool restore
-
-      - name: Generate LivingDoc HTML report
+      - name: Generate Allure HTML report
         if: always()
         shell: pwsh
         run: |
-          $dll = Resolve-Path "./bin/Release/net8.0/SauceDemo.BddFramework.dll"
-          $resultsDir = Resolve-Path "./TestReports/TestResults"
+          $resultsPath = Resolve-Path "./TestReports/allure-results"
 
-          if (-not (Test-Path $resultsDir)) {
-            Write-Host "TestResults folder not found. Skipping LivingDoc generation."
+          if (-not (Test-Path $resultsPath)) {
+            Write-Host "Allure results not found at $resultsPath. Skipping report generation."
             exit 0
           }
 
-          $json = Get-ChildItem -Recurse $resultsDir -Filter TestExecution.json | Select-Object -First 1
-
-          if (-not $json) {
-            Write-Host "SpecFlow TestExecution.json not found in $resultsDir. Skipping LivingDoc generation."
-            exit 0
+          $reportPath = "./TestReports/allure-report"
+          if (Test-Path $reportPath) {
+            Remove-Item -Recurse -Force $reportPath
           }
 
-          Write-Host "Using DLL: $dll"
-          Write-Host "Using SpecFlow JSON: $($json.FullName)"
+          allure generate $resultsPath --clean -o $reportPath
 
-          Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "./TestReports/LivingDoc"
-
-          dotnet tool run livingdoc test-assembly $dll `
-            -t $json.FullName `
-            -o "./TestReports/LivingDoc"
-
-      - name: Check LivingDoc exists
-        id: check_livingdoc
+      - name: Check Allure report exists
+        id: check_allure
         if: always()
         shell: pwsh
         run: |
-          if (Test-Path ./TestReports/LivingDoc) {
+          if (Test-Path ./TestReports/allure-report) {
             echo "exists=true" >> $env:GITHUB_OUTPUT
           } else {
             echo "exists=false" >> $env:GITHUB_OUTPUT
@@ -89,20 +82,27 @@ jobs:
           name: test-results-trx
           path: TestReports/**/*.trx
 
-      - name: Publish LivingDoc HTML report (artifact)
-        if: steps.check_livingdoc.outputs.exists == 'true'
+      - name: Upload Allure results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: livingdoc-report
-          path: TestReports/LivingDoc
+          name: allure-results
+          path: TestReports/allure-results
+
+      - name: Publish Allure HTML report (artifact)
+        if: steps.check_allure.outputs.exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: TestReports/allure-report
 
       - name: Upload Pages Artifact (for GitHub Pages)
-        if: steps.check_livingdoc.outputs.exists == 'true'
+        if: steps.check_allure.outputs.exists == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
-          path: TestReports/LivingDoc
+          path: TestReports/allure-report
 
       - name: Deploy to GitHub Pages
-        if: steps.check_livingdoc.outputs.exists == 'true'
+        if: steps.check_allure.outputs.exists == 'true'
         id: deployment
         uses: actions/deploy-pages@v4
