@@ -28,6 +28,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -35,7 +40,7 @@ jobs:
 
       - name: Install Allure CLI
         shell: pwsh
-        run: choco install allure.commandline -y
+        run: npm install -g allure-commandline
 
       - name: Restore
         run: dotnet restore

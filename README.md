@@ -70,6 +70,7 @@ Additional notes:
    - **Windows**: `choco install allure.commandline -y`
    - **macOS**: `brew install allure`
    - **Any OS with Node.js**: `npm install -g allure-commandline`
+   - If Chocolatey is unavailable on your Windows environment, use the Node.js option instead.
 
 2. Execute the helper script to run tests and build the Allure report:
 
@@ -98,7 +99,7 @@ Additional notes:
 The `CI - SauceDemo BDD Automation` workflow now builds and publishes an Allure report on every push or pull request to `master`:
 
 1. Tests run in **Release** with the Allure SpecFlow plugin enabled, producing `TestReports/allure-results` and TRX files.
-2. The action installs the Allure CLI via Chocolatey and generates `TestReports/allure-report` (HTML output).
+2. The action installs the Allure CLI globally via `npm install -g allure-commandline` and generates `TestReports/allure-report` (HTML output).
 3. Artifacts published in the workflow run:
    - `test-results-trx`: TRX test result files.
    - `allure-results`: raw Allure result files.
