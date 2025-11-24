@@ -26,7 +26,8 @@ namespace SauceDemo.BddFramework.Hooks
             var resultsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestReports", "allure-results");
             Directory.CreateDirectory(resultsDirectory);
 
-            AllureLifecycle.SetInstance(new AllureLifecycle());
+            // Force lifecycle initialization so SpecFlow hooks can use it without hitting null
+            var _ = AllureLifecycle.Instance;
         }
     }
 }
